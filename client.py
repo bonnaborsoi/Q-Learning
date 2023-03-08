@@ -35,16 +35,16 @@ Q_table = load_matrix()
 # Define the hyperparameters
 alpha = 0.6
 gamma = 0.9
-epsilon = 1
+epsilon = 0.35
 decaimento_epsilon = 0.001
 min_epsilon = 0.01
-
+victories = 0
 
 recompensa_por_episodio = []
 
 s = connect(2037) # Conecta-se ao servidor local do jogo
 
-for i in range (1,100001):
+for episodio in range (1,100001):
     estado = 0b0000000 # Estado inicial
     estado = int(estado)
     done = False
@@ -52,7 +52,7 @@ for i in range (1,100001):
 
     while not done:
         
-        if random.uniform(0, 1) < epsilon or i == 1:
+        if random.uniform(0, 1) < epsilon:
             action = random.randint(0,2) # Seleciona uma ação aleatória
         else:
             action = np.argmax(Q_table[estado]) # Exploit learned values
@@ -71,10 +71,6 @@ for i in range (1,100001):
         new_value = (1 - alpha) * old_value + alpha * (recompensa + gamma * next_max)
         Q_table[estado][action] = new_value
         recompensa_total = recompensa_total + recompensa
-        #print(total_episode_reward)
-        # print(f'Estado atual: {estado}')
-        # print(f'Prox estado: {prox_estado}')
-        # print(f'Recompensa: {recompensa}')
 
         estado = prox_estado
         save_matrix(Q_table)
@@ -83,12 +79,13 @@ for i in range (1,100001):
             done = True
             break
 
-    epsilon = max(min_epsilon, np.exp(-decaimento_epsilon*i))
+    # epsilon = max(min_epsilon, epsilon*np.exp(-decaimento_epsilon*episodio))
     if recompensa == 300:
-        recompensa_total = 1000 - recompensa_total
+        recompensa_total = 700 - recompensa_total
+        victories = victories + 1
     recompensa_por_episodio.append(recompensa_total)
-    # print(f'\n')
-    print(f'epsilon: {epsilon}')
+    print(f'episodio: {episodio}')
+    print(f'vitórias: {victories}')
+    # print(f'epsilon: {epsilon}')
     print(f'recompensa do episodio: {recompensa_total}')
     print(f'{recompensa_por_episodio}')
-    #print(rewards_per_episode)
