@@ -30,10 +30,10 @@ Q_table = load_matrix()
 # Define the hyperparameters
 alpha = 0.6
 gamma = 0.9
-epsilon = 0.35
+epsilon = 0.4
+min_epsilon = 0.2
+epsilon_decay = 0.005
 
-#epsilon_decay = 0.001
-#min_epsilon = 0.01
 victories = 0
 
 reward_per_episode = []
@@ -84,11 +84,17 @@ for episode in range (1,100001):
 
     # Update the decay
     # epsilon = max(min_epsilon, epsilon*np.exp(-epsilon_decay*episode))
-
+    epsilon -= epsilon_decay
     # Total reward when the agents reachs the goal and count number of victories
     if reward == 300:
         total_reward = 700 - total_reward
         victories = victories + 1
+
+    # if epsilon*np.exp(-epsilon_decay*episode) <= min_epsilon:
+    #     epsilon = 0.5
+
+    if epsilon <= min_epsilon:
+        epsilon = 0.5
 
     # Stores the total reward every time the agent falls or reachs the goal 
     reward_per_episode.append(total_reward)
